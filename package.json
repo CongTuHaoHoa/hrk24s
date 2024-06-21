@@ -3,14 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon src/bin/www"
   },
-  "dependencies": {
+  "dependencies":
+  {
+    "colors": "^1.4.0",
     "cookie-parser": "~1.4.4",
     "debug": "4.3.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "http-errors": "~1.6.3",
+    "mongodb": "^6.7.0",
     "morgan": "~1.9.1",
     "nodemon": "^3.1.4"
   }

@@ -2,7 +2,7 @@
 /**
  * Module dependencies.
  */
-const app = require('../app')
+const app = require('./app')
 const debug = require('debug')('hrk24s:server')
 const http = require('http')
 
@@ -31,21 +31,21 @@ const onError = error =>
 
   const bind = typeof port === 'string'
       ? 'Pipe ' + port
-      : 'Port ' + port;
+      : 'Port ' + port
 
   // handle specific listen errors with friendly messages
   switch (error.code)
   {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
+      console.error(bind + ' requires elevated privileges')
+      process.exit(1)
+      break
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
+      console.error(bind + ' is already in use')
+      process.exit(1)
+      break
     default:
-      throw error;
+      throw error
   }
 }
 
@@ -55,12 +55,21 @@ const onError = error =>
 const onListening = () =>
 {
 
-  const addr = server.address();
+  const addr = server.address()
   const bind = typeof addr === 'string'
       ? 'pipe ' + addr
-      : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+      : 'port ' + addr.port
+  debug('Listening on ' + bind)
 }
+
+/**
+ * Kết nối Database
+ */
+const connect = require('../database/main/connect.js')
+const accountsAdmin = require('../database/database/accountsAdmin')
+
+connect().then(() => accountsAdmin.get().then(r => console.log(r)))
+
 
 server.listen(port)
 server.on('error', onError)

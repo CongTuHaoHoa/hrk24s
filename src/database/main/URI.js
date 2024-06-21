@@ -1,0 +1,1 @@
+module.exports = "mongodb+srv://nhi:7109@hurrikyan.vrn9uzi.mongodb.net/?retryWrites=true&w=majority&appName=Hurrikyan";
