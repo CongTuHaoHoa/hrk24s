@@ -9,8 +9,7 @@ const app = express()
  * Kết nối các Router
  */
 const indexRouter = require('../routes')
-const usersRouter = require('../routes/users')
-
+const usersAdminRouter = require('../routes/users/admin')
 
 app.set('views', path.join('src/views'))
 app.set('view engine', 'ejs')
@@ -19,8 +18,13 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
+
+
 app.use('/', indexRouter)
-app.use('/users', usersRouter)
+app.use('/users/admin', usersAdminRouter)
+
+
+
 app.use((req, res, next) => next(createError(404)))
 app.use((err, req, res, next) =>
 {

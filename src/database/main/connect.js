@@ -1,6 +1,6 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const colors = require('colors')
 const uri = require('./URI')
-const colors = require('colors');
 
 const clientOptions =
 {
@@ -29,5 +29,5 @@ const run = async () =>
 
 
 module.exports = async () => await run().catch(console.dir)
-module.exports.client = client
+module.exports.collection = collectionName => client.db('HurrikyanDB').collection(collectionName)
 

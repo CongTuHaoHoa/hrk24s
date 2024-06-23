@@ -66,9 +66,7 @@ const onListening = () =>
  * Kết nối Database
  */
 const connect = require('../database/main/connect.js')
-const accountsAdmin = require('../database/database/accountsAdmin')
-
-connect().then(() => accountsAdmin.get().then(r => console.log(r)))
+connect().then(null)
 
 
 server.listen(port)
