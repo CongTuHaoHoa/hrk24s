@@ -20,12 +20,18 @@ const EXISTS = data => ({ error: `<${ data[Object.keys(data)[0]] }> is already e
  * @returns {{error: string}} - Trả về tin nhắn báo lỗi
  * @param data { object } - Truyền vào Object chứa giá trị không tìm thấy
  */
-const NOTFOUND = data => ({ error: `<${ data[Object.keys(data)[0]] }> is not found: check field <${ Object.keys(data)[0] }>`, code: 400 })
+const NOTFOUND = data => ({ error: `<${ data[Object.keys(data)[0]] }> is not found: check field <${ Object.keys(data)[0] }>`, code: 404 })
+
+/**
+ * @returns {{error: string, code: number}} - Trả về tin nhắn báo lỗi
+ * @param error { string } - Truyền vào Object chứa giá trị không tìm thấy
+ */
+const SERVER = error => ({ error, code: 500 })
 
 /**
  * Đóng gói các giá trị lỗi
  */
-const ERROR = { MISSING, DATABASE, EXISTS, NOTFOUND }
+const ERROR = { MISSING, DATABASE, EXISTS, NOTFOUND, SERVER }
 module.exports.ERROR = ERROR
 
 
@@ -39,11 +45,11 @@ module.exports.ERROR = ERROR
 const ADD = _id =>  ({ message: `Adding successfully${ _id ? ` with id: <${_id}>` : ''} !!`, code: 200 })
 const EDIT = _id =>  ({ message: `Edit${ _id ? ` id: <${_id}>` : ''} successfully !!`, code: 200 })
 const DELETE = _id =>  ({ message: `Delete${ _id ? ` id: <${_id}>` : ''} successfully !!`, code: 200 })
-
+const COMPLETE = { message: 'Success !!', code: 200 }
 /**
  * Đóng gói các tin nhắn báo thành công
  */
-const SUCCESS =  { message: 'Success !!', code: 200, ADD, EDIT, DELETE }
+const SUCCESS =  { COMPLETE, ADD, EDIT, DELETE }
 module.exports.SUCCESS = SUCCESS
 
 

@@ -3,13 +3,8 @@ const express = require('express')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const logger = require('morgan')
+const response = require('../constants/response')
 const app = express()
-
-/**
- * Kết nối các Router
- */
-const indexRouter = require('../routes')
-const usersAdminRouter = require('../routes/users/admin')
 
 app.set('views', path.join('src/views'))
 app.set('view engine', 'ejs')
@@ -20,19 +15,31 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
 
+
+
+/**
+ * Kết nối các Router
+ */
+const indexRouter = require('../routes/main')
+const usersAdminRouter = require('../routes/users/admin')
+const authenticationAdminRouter = require('../routes/authentication/admin')
+
 app.use('/', indexRouter)
 app.use('/users/admin', usersAdminRouter)
+app.use('/authentication/admin', authenticationAdminRouter)
+
+
+
 
 
 
 app.use((req, res, next) => next(createError(404)))
 app.use((err, req, res, next) =>
 {
-  res.locals.message = err.message
+  // res.locals.message = err.message
   res.locals.error = req.app.get('env') === 'development' ? err : {}
 
-  res.status(err.status || 500)
-  res.render('error')
+  res.status(err.status || 500).json(response.ERROR.SERVER(err.message))
 })
 
 module.exports = app

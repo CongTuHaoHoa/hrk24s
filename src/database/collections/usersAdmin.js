@@ -2,7 +2,6 @@ const fs = require('fs')
 const path = require('path')
 const { ObjectId } = require('mongodb')
 const database = require('../main/connect')
-const MD5 = require('../../constants/MD5')
 const response = require('../../constants/response')
 
 const collectionName = 'usersAdmin'
@@ -26,7 +25,7 @@ const GET = async filter =>
 const ADD = async newValue =>
 {
     const { username, password, name, image } = newValue
-    const _id = (await collection.insertOne({ username, password: MD5(password), name })).insertedId
+    const _id = (await collection.insertOne({ username, password, name })).insertedId
 
     if (_id)
     {
