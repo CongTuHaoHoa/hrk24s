@@ -6,6 +6,8 @@ const MD5 = require('../../constants/MD5')
 const response = require('../../constants/response')
 
 const collectionName = 'usersAdmin'
+const directory = 'images/avatar/admin/'
+
 const collection = database.collection(collectionName)
 
 const GET = async filter =>
@@ -31,7 +33,7 @@ const ADD = async newValue =>
         if (image)
         {
             const mimetype =  image.mimetype.split`/`[1]
-            const avatar = `avatar/admin/${ _id }.${ mimetype }`
+            const avatar = `${ directory }${ _id }.${ mimetype }`
             const filepath = path.join(__dirname, '../../../public', avatar)
 
             await fs.writeFile(filepath, image.buffer, async error =>
@@ -63,7 +65,7 @@ const EDIT = async (oldValue, newValue) =>
     if (image)
     {
         const mimetype =  image.mimetype.split`/`[1]
-        const newAvatar = `avatar/admin/${ _id }.${ mimetype }`
+        const newAvatar = `${ directory }/${ _id }.${ mimetype }`
 
         const newFilepath = path.join(__dirname, '../../../public', newAvatar)
 
