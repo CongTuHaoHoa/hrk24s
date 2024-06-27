@@ -5,6 +5,9 @@ const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 const response = require('../constants/response')
 const app = express()
+const Response = require('../constants/response')
+const cors = require('cors')
+
 
 app.set('views', path.join('src/views'))
 app.set('view engine', 'ejs')
@@ -12,7 +15,19 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, '../../public')))
+
+const corsOptions = {
+    origin: 'http://localhost:5173', // Thay đổi thành domain của frontend của bạn
+    credentials: true, // Cho phép sử dụng cookies và headers truyền đi
+};
+
+app.use(cors(corsOptions))
+
+
+
+
+
 
 
 
@@ -20,26 +35,26 @@ app.use(express.static(path.join(__dirname, 'public')))
 /**
  * Kết nối các Router
  */
-const indexRouter = require('../routes/main')
-const usersAdminRouter = require('../routes/users/admin')
-const authenticationAdminRouter = require('../routes/authentication/admin')
+const indexRouter = require('../routes')
+const usersAdminRouter = require('../routes/users')
+const authenticationAdminRouter = require('../routes/authentication')
 
 app.use('/', indexRouter)
-app.use('/users/admin', usersAdminRouter)
-app.use('/authentication/admin', authenticationAdminRouter)
+app.use('/users/', usersAdminRouter)
+app.use('/authentication/', authenticationAdminRouter)
 
 
 
 
 
 
-app.use((req, res, next) => next(createError(404)))
-app.use((err, req, res, next) =>
-{
-  // res.locals.message = err.message
-  res.locals.error = req.app.get('env') === 'development' ? err : {}
 
-  res.status(err.status || 500).json(response.ERROR.SERVER(err.message))
-})
+
+
+
+// app.use((req, res, next) => next(Response.ERROR.NOTFOUND({ [req.method]: req.url })))
+app.use((req, res, next) => next(Response.ERROR.NOTFOUND({ [req.method]: req.url })))
+
+app.use((err, req, res, next) => res.status(err.code || 500).json(err))
 
 module.exports = app
