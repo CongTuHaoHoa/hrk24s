@@ -9,9 +9,15 @@ const middlewares = require('../middlewares/authentication')
 const GET = async (req, res, next) =>
 {
     const authentication = res.locals.data
-    const users = await User.find(new User({ id: authentication.id }))
 
-    if (users.length === 1) res.json(users[0])
+    const users = await User.find({ id: authentication.id.toString() })
+
+    if (users.length === 1)
+    {
+        const user = users[0]
+        if (!authentication.verify && user.totp) res.json({ token : authentication.token })
+        else res.json(user)
+    }
     else
     {
         await authentication.delete()
@@ -24,12 +30,13 @@ const POST = async (req, res) =>
 {
     const { user } = res.locals.data
 
-    const authentication = new Authentication(user._id)
-
+    const authentication = new Authentication(user.id)
     const token = await authentication.save()
 
     res.cookie('token', token)
-    res.json(user)
+
+    if (!authentication.verify && user.totp) res.json({ token })
+    else res.json(user)
 }
 
 const DELETE = async (req, res, next) =>
@@ -40,7 +47,7 @@ const DELETE = async (req, res, next) =>
     next(response.SUCCESS.DELETE({ token: authentication.token }))
 }
 
-const DELETEALL = async (req, res, next) =>
+const CLEAR = async (req, res, next) =>
 {
     await Authentication.clear()
     res.clearCookie('token')
@@ -49,7 +56,7 @@ const DELETEALL = async (req, res, next) =>
 
 router.get('/', ...middlewares.GET, GET)
 router.post('/',...middlewares.POST, POST)
-router.delete('/all', DELETEALL)
+router.delete('/clear', CLEAR)
 router.delete('/', ...middlewares.DELETE, DELETE)
 
 module.exports = router

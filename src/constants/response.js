@@ -32,7 +32,7 @@ const NOTFOUND = data => new Response(`<${ data[Object.keys(data)[0]] }> is not 
  * @returns {Response} - Trả về tin nhắn báo lỗi
  * @param mime { string } - Truyền vào tên đuôi file được cho phép
  */
-const NOTALLOWED = mime => new Response(`'Only ${ mime } allow !!'`, 403)
+const NOTALLOWED = mime => new Response(`Only ${ mime } allow !!`, 403)
 
 /**
  * Đóng gói các giá trị lỗi

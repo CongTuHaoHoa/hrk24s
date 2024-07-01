@@ -1,14 +1,13 @@
 const database = require('../main/connect')
 const response = require("../../constants/response");
-
 const collectionName = 'authentication'
 const collection = database.collection(collectionName)
 
 class Authentication extends Object
 {
-
     #_id
     #_token
+    #_verify
 
     get id()
     {
@@ -20,15 +19,25 @@ class Authentication extends Object
         return this.#_token
     }
 
-    constructor(id, token)
+    get verify()
+    {
+        return this.#_verify
+    }
+    set verify(value)
+    {
+        this.#_verify = value
+    }
+
+    constructor(id, token, verify)
     {
         super()
 
         this.#_id = id
         this.#_token = token
+        this.#_verify = verify || false
     }
 
-    static find = async (filter = new Authentication()) =>
+    static find = async (filter = {}) =>
     {
         const { id, token } = filter || {}
 
@@ -38,15 +47,33 @@ class Authentication extends Object
               const checkToken  =  token ? value._id.toString() === token : true
 
               return checkID && checkToken
-        }).map(value => new Authentication(value.token, value._id))
+        }).map(value => new Authentication(value.token, value._id, value.verify))
     }
+
+    #_changeData = () =>
+    ({
+        token : this.id,
+        verify : this.verify
+    })
+
 
     save = async () =>
     {
-        this.#_token = (await collection.insertOne({ token: this.id })).insertedId
+        if(this.token)
+        {
+            const authentication = this.#_changeData()
+            console.log(authentication)
 
-        if (this.#_token) return this.#_token
-        else throw response.ERROR.DATABASE(collectionName)
+            await collection.findOneAndUpdate({ _id: this.token }, { $set: authentication })
+            return this
+        }
+        else
+        {
+            const authentication = this.#_changeData()
+            this.#_token = (await collection.insertOne(authentication)).insertedId
+            if (this.#_token) return this.#_token
+            else throw response.ERROR.DATABASE(collectionName)
+        }
     }
 
     delete = async () =>

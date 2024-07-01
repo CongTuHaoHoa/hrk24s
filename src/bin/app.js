@@ -37,11 +37,18 @@ app.use(cors(corsOptions))
  */
 const indexRouter = require('../routes')
 const usersAdminRouter = require('../routes/users')
+const googleRouter = require('../routes/google')
+const facebookRouter = require('../routes/facebook')
+const verifyRouter = require('../routes/verify')
+
 const authenticationAdminRouter = require('../routes/authentication')
 
 app.use('/', indexRouter)
-app.use('/users/', usersAdminRouter)
-app.use('/authentication/', authenticationAdminRouter)
+app.use('/users', usersAdminRouter)
+app.use('/authentication', authenticationAdminRouter)
+app.use('/google', googleRouter)
+app.use('/facebook', facebookRouter)
+app.use('/verify', verifyRouter)
 
 
 
