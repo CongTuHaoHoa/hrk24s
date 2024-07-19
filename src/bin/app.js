@@ -11,6 +11,7 @@ const URI = require('../constants/URI')
 const corsOptions = { origin: URI, credentials: true }
 
 
+
 app.set('views', path.join('src/views'))
 app.set('view engine', 'ejs')
 
