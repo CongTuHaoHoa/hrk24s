@@ -25,7 +25,7 @@ const check = (keyword, access) => async (req, res, next) =>
     }
 }
 
-const getData = middlewares.getData(Roles)
+const getData = middlewares.getDataByID(Roles)
 const checkBlankFields = middlewares.checkBlankFields(['name', 'color', 'icon', 'adminDB', 'clientDB'])
 const checkExistFields = middlewares.checkExistFields(['name', 'color', 'icon', 'adminDB', 'clientDB'])
 

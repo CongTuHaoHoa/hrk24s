@@ -10,20 +10,20 @@ const fileFilter = type => (req, file, callback) => (type.mime.test(file.mimetyp
 const upload = type => multer({ storage, fileFilter: fileFilter(type) })
 
 const image = name => upload(IMAGE).single(name)
+const images = name => upload(IMAGE).array(name)
+const imageFields = names => upload(IMAGE).fields(names.map(name => ({ name })))
+
 const any = multer().any()
 
-const existID = (req, res, next) =>
+const exist = by => (req, res, next) => next(req.params[by] ? null : Response.Error.MissingFields([by]))
+const getData = (by, database) => (req, res, next) =>
 {
-    next(req.params.id ? null : Response.Error.MissingFields(['id']))
-}
-const getDataByID = database => (req, res, next) =>
-{
-    const id = req.params.id
+    const value = req.params[by]
 
-    database.find({ id }).then(result =>
+    database.find({ [by]: value }).then(result =>
     {
         res.locals.data = result[0]
-        next(result[0] ? null : Response.Error.NotFound({ id }))
+        next(result[0] ? null : Response.Error.NotFound({ [by]: value }))
     })
 }
 const getUserByCookies = async (req, res, next) =>
@@ -71,7 +71,8 @@ const checkBlankFields = fields => (req, res, next) =>
 
 module.exports.checkExistFields = checkExistFields
 module.exports.checkBlankFields = checkBlankFields
-module.exports.getData = database => [existID, getDataByID(database)]
+module.exports.getDataByID = database => [exist('id'), getData('id', database)]
+module.exports.getData = (by, database) => [exist(by), getData(by, database)]
 module.exports.getCookies = [checkCookies, getUserByCookies]
 module.exports.checkCookies = checkCookies
-module.exports.multer = { any, image }
+module.exports.multer = { any, image, images, fields: { image: imageFields } }

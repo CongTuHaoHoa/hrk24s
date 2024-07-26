@@ -1,4 +1,3 @@
-const createError = require('http-errors')
 const express = require('express')
 const path = require('path')
 const cookieParser = require('cookie-parser')
@@ -6,11 +5,9 @@ const logger = require('morgan')
 const app = express()
 const Response = require('../constants/response')
 const cors = require('cors')
-const URI = require('../constants/URI')
+const URI = require('../constants/URI-client')
 
 const corsOptions = { origin: URI, credentials: true }
-
-
 
 app.set('views', path.join('src/views'))
 app.set('view engine', 'ejs')
@@ -51,6 +48,7 @@ const usersRouter = require('../routes/users')
 const verifyRouter = require('../routes/verify')
 const notificationsRouter = require('../routes/notifications')
 const rolesRouter = require('../routes/roles')
+const postsRouter = require('../routes/posts')
 
 
 app.use('/', indexRouter)
@@ -63,6 +61,7 @@ app.use('/facebook', facebookRouter)
 app.use('/verify', verifyRouter)
 app.use('/notifications', notificationsRouter)
 app.use('/roles', rolesRouter)
+app.use('/posts', postsRouter)
 
 
 app.use(express.static(path.join(__dirname, '../../public')))
@@ -74,7 +73,6 @@ app.use(express.static(path.join(__dirname, '../../public')))
 
 
 
-// app.use((req, res, next) => next(Response.ERROR.NOTFOUND({ [req.method]: req.url })))
 app.use((req, res, next) => next(Response.Error.PageNotFound(req.method, req.url)))
 app.use((err, req, res, next) => res.status(err.code || 500).json(err))
 

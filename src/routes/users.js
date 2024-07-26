@@ -19,7 +19,6 @@ const POST = async (req, res) =>
 
     const user = new User({ username, password, fullname, image, role })
 
-
     res.json(await user.save())
 }
 const PATCH = async (req, res) =>
@@ -43,9 +42,8 @@ const DELETE = async (req, res, next) =>
 router.patch('/', ...middlewares.PROFILE, PATCH)
 
 router.get('/admin', ...access('adminDB', 2), GET(Admin))
-router.get('/admin/:id', ...access('adminDB', 2), ...middlewares.GET, GET(Admin))
 router.get('/client', ...access('clientDB', 2), GET(Client))
-router.get('/client/:id', ...access('clientDB', 2), ...middlewares.GET, GET(Client))
+router.get('/:id', ...middlewares.GET, GET(User))
 
 router.post('/admin', ...access('adminDB', 3), ...middlewares.POST, POST)
 

@@ -4,7 +4,7 @@ const User = require('../database/collections/users/users')
 const getAccess = require("../constants/access");
 const { array } = require("../constants/access");
 
-const getData = middlewares.getData(User)
+const getData = middlewares.getDataByID(User)
 const getCookies = middlewares.getCookies
 
 const checkExistFields = middlewares.checkExistFields(['username', 'password', 'fullname', 'role'])
