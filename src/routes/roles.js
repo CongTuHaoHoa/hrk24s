@@ -44,8 +44,8 @@ const DELETE = async (req, res) =>
 
 router.get('/', ...middlewares.CHECK, CHECK)
 
-router.get('/all', ...middlewares.ALL, GET)
-router.get('/:id', ...middlewares.ONE, GET)
+router.get('/all', GET)
+router.get('/:id', ...middlewares.GET, GET)
 
 router.post('/', ...middlewares.POST, POST)
 router.patch('/:id',...middlewares.PATCH, PATCH)

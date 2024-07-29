@@ -4,7 +4,7 @@ const Roles = require("../database/collections/roles");
 const User = require("../database/collections/users/users");
 const getAccess = require('../constants/access')
 
-const check = (keyword, access) => async (req, res, next) =>
+const check = (keyword, access, exception) => async (req, res, next) =>
 {
     const user = res.locals.user
 
@@ -19,9 +19,11 @@ const check = (keyword, access) => async (req, res, next) =>
     else
     {
         const role = await getAccess(user.role)
+        const allow = role[keyword] >= access || (exception ? exception(req, res) : false)
 
         res.locals.access = { level : role[keyword], keyword }
-        next(role[keyword] >= access ? null : Response.Error.Forbidden)
+
+        next(allow ? null : Response.Error.Forbidden)
     }
 }
 
@@ -43,15 +45,17 @@ const checkDeleteButHaveUsers = async (req, res, next) =>
     next(found.length ? Response.Error.DeleteFather : null)
 }
 
-const grantAccess = (keyword, access) => [...middlewares.getCookies, check(keyword, access)]
+const grantAccess = (keyword = null, access = 0, exception = null) => [...middlewares.getCookies, check(keyword, access, exception)]
 
 const checkDelete = [checkDeleteDefault, checkDeleteButHaveUsers]
 
 module.exports = grantAccess
 module.exports.CHECK = [...middlewares.getCookies]
 
-module.exports.ALL = [...grantAccess('adminDB', 2)]
-module.exports.ONE = [...grantAccess('adminDB', 2), ...getData]
+// module.exports.ALL = [...grantAccess('adminDB', 2)]
+// module.exports.ALL = []
+
+module.exports.GET = [...grantAccess('adminDB', 2), ...getData]
 
 module.exports.POST = [...grantAccess(), middlewares.multer.any, checkExistFields]
 module.exports.PATCH = [...grantAccess(), middlewares.multer.any, checkBlankFields, ...getData]

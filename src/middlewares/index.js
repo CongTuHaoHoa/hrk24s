@@ -1,6 +1,6 @@
 const Response = require("../constants/response")
 const multer = require("multer");
-const path = require("path");
+const path = require("node:path")
 const Authentication = require("../database/collections/authentication");
 const User = require("../database/collections/users/users");
 const storage = multer.memoryStorage()
@@ -26,19 +26,20 @@ const getData = (by, database) => (req, res, next) =>
         next(result[0] ? null : Response.Error.NotFound({ [by]: value }))
     })
 }
+const fetchUserByCookies =  async id =>
+{
+    const result = await  User.find({ id })
+    return result[0] || null
+}
 const getUserByCookies = async (req, res, next) =>
 {
-    if (res.locals.user) next()
-    else
-    {
-        const id = res.locals.authentication.id.toString()
+    const id = res.locals.authentication.id.toString()
 
-        const result = await  User.find({ id })
-        res.locals.user = result[0]
-        next(result[0] ? null : Response.Error.NotFound({ id }))
-    }
+    const result = await fetchUserByCookies(id)
+    res.locals.user = result
+    next(result ? null : Response.Error.NotFound({ id }))
 }
-const checkCookies = async (req, res, next) =>
+const fetchCookies = async req =>
 {
     const filter = { token } = req.cookies
 
@@ -46,12 +47,19 @@ const checkCookies = async (req, res, next) =>
     {
         const authentication = (await Authentication.find(filter))[0]
 
-        if (authentication)
-        {
-            res.locals.authentication = authentication
-            next()
-        }
-        else next(Response.Error.Authentication)
+        if (authentication) return authentication
+        else return null
+    }
+    else return null
+}
+const checkCookies = async (req, res, next) =>
+{
+    const authentication = await fetchCookies(req)
+
+    if (authentication)
+    {
+        res.locals.authentication = authentication
+        next()
     }
     else next(Response.Error.Authentication)
 }
@@ -76,3 +84,5 @@ module.exports.getData = (by, database) => [exist(by), getData(by, database)]
 module.exports.getCookies = [checkCookies, getUserByCookies]
 module.exports.checkCookies = checkCookies
 module.exports.multer = { any, image, images, fields: { image: imageFields } }
+module.exports.fetchUserByCookies = fetchUserByCookies
+module.exports.fetchCookies = fetchCookies

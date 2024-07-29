@@ -11,6 +11,8 @@ const collection = database.collection(collectionName)
 const jsdom = require('jsdom');
 const path = require("path");
 const fs = require("fs");
+const {ObjectId} = require("mongodb");
+const {find} = require("./notification");
 const { JSDOM } = jsdom;
 
 const convertToHTML = content =>
@@ -125,7 +127,7 @@ const getPicture = (content, map) =>
     {
         for (const node of content)
         {
-            if (node.type === 'image') return map[node.attrs.src]
+            if (node.type === 'image') return map[node.attrs.src] || node.attrs.src
         }
     }
     return null
@@ -133,7 +135,7 @@ const getPicture = (content, map) =>
 
 const deleteDirectory = directoryPath =>
 {
-    if (fs.existsSync(directoryPath)) fs.rmdirSync(directoryPath, { recursive: true })
+    if (fs.existsSync(directoryPath)) fs.rmSync(directoryPath, { recursive: true })
 }
 
 const deleteFiles = directoryPath =>
@@ -207,6 +209,7 @@ class Post extends Object
     #_time
     #_url
     #_author
+    #_privacy
 
 
     get id()
@@ -251,7 +254,11 @@ class Post extends Object
     }
     get author()
     {
-        return this.#_author;
+        return this.#_author ? this.#_author.toString() : this.#_author;
+    }
+    get privacy()
+    {
+        return this.#_privacy;
     }
 
     set title(value)
@@ -282,12 +289,16 @@ class Post extends Object
     {
         this.#_nodes = value;
     }
+    set privacy(value)
+    {
+        this.#_privacy = value;
+    }
 
     constructor(data)
     {
         super(data)
 
-        const { id, title, picture, preview, keys, files, content, time, url, author, nodes } = data
+        const { id, title, picture, preview, privacy, keys, files, content, time, url, author, nodes } = data
 
         this.#_id = id
         this.#_title = title
@@ -296,11 +307,13 @@ class Post extends Object
         this.#_keys = keys || []
         this.#_files = files || []
         this.#_content = content || ''
+
         this.#_nodes = nodes || []
 
         this.#_time = time || Date.now()
         this.#_url = url || ''
         this.#_author = author || ''
+        this.#_privacy = privacy || 'public'
     }
 
     toJSON = () =>
@@ -315,6 +328,7 @@ class Post extends Object
     #_changeData = () =>
     ({
         url: this.url,
+        privacy: this.privacy,
         title: this.title,
         picture: this.picture,
         preview: this.preview,
@@ -327,7 +341,7 @@ class Post extends Object
 
     delete = async () =>
     {
-        await collection.findOneAndDelete({ _id: this.id })
+        await collection.findOneAndDelete({ _id: this.#_id })
         const directoryPath = path.join(__dirname, publicDirectory, directory, this.id)
 
         deleteFiles(directoryPath)
@@ -401,6 +415,8 @@ class Post extends Object
 
     #_edit = async () =>
     {
+        const oldData = (await Post.find({ id: this.id }))[0]
+
         const directoryPath = path.join(__dirname, publicDirectory, directory, this.id)
 
         const oldSavedFiles = getFiles(directoryPath)
@@ -461,19 +477,17 @@ class Post extends Object
                 this.#_picture = `${ server }/${ link }`
             }
         }
+        else if (!oldData.picture) this.#_picture = getPicture(this.nodes, map)
 
         this.#_content = wrapYouTubeIframes(this.#_content)
 
         const post = this.#_changeData()
         await collection.findOneAndUpdate({ _id: this.#_id }, { $set: post })
-
         return this
     }
 
     save = async () =>
     {
-        // console.log(this.files, this.picture)
-        // return this
         if (this.id) return await this.#_edit()
         else return await this.#_add()
     }
