@@ -10,8 +10,6 @@ const Response = require("../constants/response")
 
 const getPosts = async authentication =>
 {
-    // const authentication = await fetchCookies(req)
-
     const publicPosts = await Post.find({ privacy: 'public' })
     const adminPosts = await Post.find({ privacy: 'admin' })
 
@@ -51,28 +49,6 @@ const GET  = async (req, res, next) =>
             output.push({ ...post.toJSON(), author: author.toJSON(), content: '' })
         }
         res.json(output)
-        // res.json([...output, ...output])
-
-        // res.json([   ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,
-        //              ...output,])
     }
 }
 

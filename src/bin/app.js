@@ -12,14 +12,11 @@ const corsOptions = { origin: URI, credentials: true }
 app.set('views', path.join('src/views'))
 app.set('view engine', 'ejs')
 
-
-
-app.use((req, res, next) =>
+app.use(async (req, res, next) =>
 {
     if (!req.url.startsWith('/images')) logger('dev')(req, res, next)
     else next()
-});
-
+})
 
 
 app.use(express.json())
@@ -49,6 +46,7 @@ const verifyRouter = require('../routes/verify')
 const notificationsRouter = require('../routes/notifications')
 const rolesRouter = require('../routes/roles')
 const postsRouter = require('../routes/posts')
+const musicsRouter = require('../routes/musics')
 
 
 app.use('/', indexRouter)
@@ -62,6 +60,7 @@ app.use('/verify', verifyRouter)
 app.use('/notifications', notificationsRouter)
 app.use('/roles', rolesRouter)
 app.use('/posts', postsRouter)
+app.use('/musics', musicsRouter)
 
 
 app.use(express.static(path.join(__dirname, '../../public')))

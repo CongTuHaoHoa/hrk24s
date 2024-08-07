@@ -5,13 +5,31 @@ const Authentication = require("../database/collections/authentication");
 const User = require("../database/collections/users/users");
 const storage = multer.memoryStorage()
 const IMAGE = { mime : /jpeg|jpg|png/, error: Response.Error.File('JPG, JPEG, PNG') }
+const AUDIO = { mime : /mpeg/, error: Response.Error.File('MP3') }
 
 const fileFilter = type => (req, file, callback) => (type.mime.test(file.mimetype) && type.mime.test(path.extname(file.originalname).toLowerCase())) ? callback(null, true) : callback(type.error)
+const fileFilterMusics = (req, file, callback) =>
+{
+    if (file.fieldname === 'picture')
+    {
+        if (IMAGE.mime.test(file.mimetype)) callback(null, true)
+        else callback(IMAGE.error, false)
+    }
+    else if (file.fieldname === 'audio')
+    {
+        if (AUDIO.mime.test(file.mimetype)) callback(null, true)
+        else callback(AUDIO.error, false)
+    }
+    else callback(Response.Error.NotFound({ fieldName: file.fieldname }), false)
+}
+
 const upload = type => multer({ storage, fileFilter: fileFilter(type) })
+const uploadMusic =  multer({ storage, fileFilter: fileFilterMusics })
 
 const image = name => upload(IMAGE).single(name)
 const images = name => upload(IMAGE).array(name)
 const imageFields = names => upload(IMAGE).fields(names.map(name => ({ name })))
+const musics = () => uploadMusic.fields([{ name: 'picture', maxCount: 1 }, { name: 'audio', maxCount: 1 }])
 
 const any = multer().any()
 
@@ -83,6 +101,6 @@ module.exports.getDataByID = database => [exist('id'), getData('id', database)]
 module.exports.getData = (by, database) => [exist(by), getData(by, database)]
 module.exports.getCookies = [checkCookies, getUserByCookies]
 module.exports.checkCookies = checkCookies
-module.exports.multer = { any, image, images, fields: { image: imageFields } }
+module.exports.multer = { any, image, images, fields: { image: imageFields, musics } }
 module.exports.fetchUserByCookies = fetchUserByCookies
 module.exports.fetchCookies = fetchCookies

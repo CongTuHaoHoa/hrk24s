@@ -29,5 +29,4 @@ const checkPrivacy = async (req, res, next) =>
 module.exports.GET = [...middlewares.getData('url', Post), checkPrivacy]
 module.exports.POST = [middlewares.multer.fields.image(['picture', 'files'])]
 module.exports.PATCH = [middlewares.multer.fields.image(['picture', 'files']), ...middlewares.getDataByID(Post), checkPrivacy]
-
 module.exports.DELETE = [...middlewares.getDataByID(Post), checkPrivacy]

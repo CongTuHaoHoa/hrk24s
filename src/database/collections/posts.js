@@ -2,18 +2,19 @@ const database = require('../main/connect')
 const Response = require("../../constants/response");
 const {schema} = require("prosemirror-schema-basic");
 const {DOMSerializer} = require("prosemirror-model");
+const server = require("../../constants/URI-server");
+const jsdom = require('jsdom')
+const path = require("path")
+const fs = require("fs")
+const {ObjectId} = require("mongodb")
+const {find} = require("./notification")
+
 const collectionName = 'posts'
 const directory = 'images/posts'
 const publicDirectory = '../../../public'
-const server = require("../../constants/URI-server");
-
 const collection = database.collection(collectionName)
-const jsdom = require('jsdom');
-const path = require("path");
-const fs = require("fs");
-const {ObjectId} = require("mongodb");
-const {find} = require("./notification");
-const { JSDOM } = jsdom;
+
+const { JSDOM } = jsdom
 
 const convertToHTML = content =>
 {
@@ -355,7 +356,7 @@ class Post extends Object
     {
         this.#_id = (await collection.insertOne({ ...dumb, time: this.time, author: this.author })).insertedId
 
-        const newDirectory = path.join(__dirname, publicDirectory, directory, this.id);
+        const newDirectory = path.join(__dirname, publicDirectory, directory, this.id)
 
         await fs.mkdir(newDirectory, { recursive: true }, () => {})
 
